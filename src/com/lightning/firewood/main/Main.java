@@ -71,13 +71,13 @@ public class Main {
 		}
 		
 		Class<?> gameClass = null;
+		gameClass = games[exGameIndex];
 		
 		for(int i = 0; i < games.length; i++) {
 			if((FirewoodInterface.class.isAssignableFrom(games[i]) && !games[i].getName().equals("Example Game"))) {
 				gameClass = games[i];
+				break;
 			}
-			if(i == games.length-1)
-				gameClass = games[exGameIndex];
 		}
 		
 		FirewoodInterface game = null;
