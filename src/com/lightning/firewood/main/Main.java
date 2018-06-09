@@ -46,19 +46,25 @@ public class Main {
 				".##........##..##....##..##.......##..##..##.##.....##.##.....##.##.....##\n" + 
 				".##.......####.##.....##.########..###..###...#######...#######..########.");
 		System.out.println("by Lightning Creations");
-		System.out.println("Starting...");
+		System.out.println("\nStarting...");
 		
-		System.out.println("Searching for games...");
+		System.out.println("\nSearching for games...");
 		Reflections r = new Reflections("");
 		Set<Class<?>> gamesSet = r.getTypesAnnotatedWith(FirewoodGame.class);
 		Class<?>[] games = new Class<?>[gamesSet.size()];
 		int index = 0;
+		int exGameIndex = 0;
+		
+		System.out.println("\nFound:");
 		
 		for(Class<?> game : gamesSet) {
 			games[index] = game;
-			System.out.println(game.getName());
+			System.out.println("  * "+game.getName());
+			if(game.getName().equals("Example Game"))
+				exGameIndex = index;
 			index++;
 		}
+		System.out.println();
 		
 		if(games.length == 1) {
 			System.out.println("Only detected ExampleGame... Oh well.");
@@ -67,9 +73,11 @@ public class Main {
 		Class<?> gameClass = null;
 		
 		for(int i = 0; i < games.length; i++) {
-			if((FirewoodInterface.class.isAssignableFrom(games[i]) && !games[i].getName().equals("com.lightning.firewood.example.ExampleGame")) || i == (games.length-1)) {
+			if((FirewoodInterface.class.isAssignableFrom(games[i]) && !games[i].getName().equals("Example Game"))) {
 				gameClass = games[i];
 			}
+			if(i == games.length-1)
+				gameClass = games[exGameIndex];
 		}
 		
 		FirewoodInterface game = null;
@@ -85,5 +93,7 @@ public class Main {
 		FirewoodGame annotation = gameClass.getAnnotation(FirewoodGame.class);
 		
 		System.out.println("Starting " + annotation.name() + (annotation.description().isEmpty() ? ", which has no description provided." : (": " + annotation.description())));
+		
+		
 	}
-}
+}
