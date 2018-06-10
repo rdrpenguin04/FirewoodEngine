@@ -1,5 +1,5 @@
 /**
- * Annotation for identifying game for the Firewood Engine.
+ * Defines a texture for use in the engine.
  * 
  * Copyright (C) 2018 Lightning Creations
  *
@@ -16,21 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.lightning.firewood.identification;
-
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.*;
+package com.lightning.firewood.rendering;
 
 /**
  * @author Ray Redondo
  *
  */
-@Documented
-@Retention(RUNTIME)
-@Target(TYPE)
-public @interface FirewoodGame {
-	public String name();
-	public String description() default "";
+public class Texture {
+
 }

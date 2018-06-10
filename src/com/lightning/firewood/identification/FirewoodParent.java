@@ -1,5 +1,5 @@
 /**
- * Annotation for identifying game for the Firewood Engine.
+ * Interface for establishing conformity with games for the Firewood Engine.
  * 
  * Copyright (C) 2018 Lightning Creations
  *
@@ -18,19 +18,10 @@
  */
 package com.lightning.firewood.identification;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.*;
-
 /**
  * @author Ray Redondo
  *
  */
-@Documented
-@Retention(RUNTIME)
-@Target(TYPE)
-public @interface FirewoodGame {
-	public String name();
-	public String description() default "";
+public abstract class FirewoodParent {
+	
 }

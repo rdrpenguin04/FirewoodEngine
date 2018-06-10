@@ -22,14 +22,16 @@ import java.util.Set;
 
 import org.reflections.*;
 
-import com.lightning.firewood.identification.FirewoodGame;
-import com.lightning.firewood.identification.FirewoodInterface;
+import com.lightning.firewood.display.Border;
+import com.lightning.firewood.identification.*;
 
 /**
  * @author Ray Redondo
  *
  */
 public class Main {
+	private static Border border;
+	
 	/**
 	 * The main function of the engine. Finds an annotated game and runs it.
 	 * If no external games are found, defaults to <code>com.lightning.firewood.example.ExampleGame</code>.
@@ -67,23 +69,23 @@ public class Main {
 		System.out.println();
 		
 		if(games.length == 1) {
-			System.out.println("Only detected ExampleGame... Oh well.");
+			System.out.println("Only detected ExampleGame... Oh well.\n");
 		}
 		
 		Class<?> gameClass = null;
 		gameClass = games[exGameIndex];
 		
 		for(int i = 0; i < games.length; i++) {
-			if((FirewoodInterface.class.isAssignableFrom(games[i]) && !games[i].getName().equals("Example Game"))) {
+			if((FirewoodParent.class.isAssignableFrom(games[i]) && !games[i].getName().equals("Example Game"))) {
 				gameClass = games[i];
 				break;
 			}
 		}
 		
-		FirewoodInterface game = null;
+		FirewoodParent game = null;
 		
 		try {
-			game = (FirewoodInterface) gameClass.newInstance();
+			game = (FirewoodParent) gameClass.newInstance();
 		} catch(Error | Exception e) {
 			System.err.print("FATAL ERROR! ");
 			e.printStackTrace();
@@ -94,6 +96,14 @@ public class Main {
 		
 		System.out.println("Starting " + annotation.name() + (annotation.description().isEmpty() ? ", which has no description provided." : (": " + annotation.description())));
 		
-		
+		if(border == null) {
+			System.err.println("ERROR! Game didn't finish configuration!");
+			System.err.println("This isn't fatal; attempting to find correct config files...");
+			
+			// TODO: I'm tired, but here's psuedocode:
+			// 1. Get a list of all of the directories in /assets/
+			// 2. Run the list through Util.findClosestString(list, annotation.name())
+			// 3. Load config for missing items through there.
+		}
 	}
 }
