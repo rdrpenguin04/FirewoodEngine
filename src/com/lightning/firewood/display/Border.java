@@ -27,7 +27,16 @@ import com.lightning.firewood.rendering.*;
 public class Border {
 	private Texture[] borderTextures;
 	
-	public Border(String gameName) {
-		
+	public Border(String gameDir) {
+		String borderResourceDir = "assets/" + gameDir + "/gfx/border/";
+		borderTextures = new Texture[24];
+		borderTextures[0] = new Texture(borderResourceDir+"upFixed.png");
+		borderTextures[1] = new Texture(borderResourceDir+"downFixed.png");
+		borderTextures[2] = new Texture(borderResourceDir+"leftFixed.png");
+		borderTextures[3] = new Texture(borderResourceDir+"rightFixed.png");
+		borderTextures[0] = new Texture(borderResourceDir+"ulFixed.png");
+		borderTextures[1] = new Texture(borderResourceDir+"urFixed.png");
+		borderTextures[2] = new Texture(borderResourceDir+"dlFixed.png");
+		borderTextures[3] = new Texture(borderResourceDir+"drFixed.png");
 	}
 }

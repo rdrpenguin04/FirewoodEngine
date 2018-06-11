@@ -18,10 +18,15 @@
  */
 package com.lightning.firewood.identification;
 
+import com.lightning.firewood.display.Border;
+import com.lightning.firewood.main.Main;
+
 /**
  * @author Ray Redondo
  *
  */
 public abstract class FirewoodParent {
-	
+	public void setBorder(Border newBorder) {
+		Main.setBorder(newBorder);
+	}
 }

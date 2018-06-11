@@ -18,12 +18,24 @@
  */
 package com.lightning.firewood.main;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.PrintStream;
 import java.util.Set;
 
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.opengl.GL;
 import org.reflections.*;
 
 import com.lightning.firewood.display.Border;
 import com.lightning.firewood.identification.*;
+import com.lightning.firewood.util.Logger;
+import com.lightning.firewood.util.Util;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.glfw.Callbacks.*;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.system.MemoryUtil.*;
 
 /**
  * @author Ray Redondo
@@ -31,6 +43,7 @@ import com.lightning.firewood.identification.*;
  */
 public class Main {
 	private static Border border;
+	private static long window;
 	
 	/**
 	 * The main function of the engine. Finds an annotated game and runs it.
@@ -39,37 +52,38 @@ public class Main {
 	 * @param args The command line arguments. Not used at the moment.
 	 */
 	public static void main(String[] args) {
-		System.out.println(
-				".########.####.########..########.##......##..#######...#######..########.\n" + 
-				".##........##..##.....##.##.......##..##..##.##.....##.##.....##.##.....##\n" + 
-				".##........##..##.....##.##.......##..##..##.##.....##.##.....##.##.....##\n" + 
-				".######....##..########..######...##..##..##.##.....##.##.....##.##.....##\n" + 
-				".##........##..##...##...##.......##..##..##.##.....##.##.....##.##.....##\n" + 
-				".##........##..##....##..##.......##..##..##.##.....##.##.....##.##.....##\n" + 
-				".##.......####.##.....##.########..###..###...#######...#######..########.");
-		System.out.println("by Lightning Creations");
-		System.out.println("\nStarting...");
-		
-		System.out.println("\nSearching for games...");
+		Logger.println(".########.####.########..########.##......##..#######...#######..########."); 
+		Logger.println(".##........##..##.....##.##.......##..##..##.##.....##.##.....##.##.....##"); 
+		Logger.println(".##........##..##.....##.##.......##..##..##.##.....##.##.....##.##.....##"); 
+		Logger.println(".######....##..########..######...##..##..##.##.....##.##.....##.##.....##"); 
+		Logger.println(".##........##..##...##...##.......##..##..##.##.....##.##.....##.##.....##"); 
+		Logger.println(".##........##..##....##..##.......##..##..##.##.....##.##.....##.##.....##"); 
+		Logger.println(".##.......####.##.....##.########..###..###...#######...#######..########.");
+		Logger.println("by Lightning Creations");
+		Logger.println();
+		Logger.println("Starting...");
+		Logger.println();
+		Logger.println("Searching for games...");
 		Reflections r = new Reflections("");
 		Set<Class<?>> gamesSet = r.getTypesAnnotatedWith(FirewoodGame.class);
 		Class<?>[] games = new Class<?>[gamesSet.size()];
 		int index = 0;
 		int exGameIndex = 0;
 		
-		System.out.println("\nFound:");
+		Logger.println();
+		Logger.println("Found:");
 		
 		for(Class<?> game : gamesSet) {
 			games[index] = game;
-			System.out.println("  * "+game.getName());
+			Logger.println("\t* "+game.getName() + ": " + game.getName());
 			if(game.getName().equals("Example Game"))
 				exGameIndex = index;
 			index++;
 		}
-		System.out.println();
+		Logger.println();
 		
 		if(games.length == 1) {
-			System.out.println("Only detected ExampleGame... Oh well.\n");
+			Logger.println("Only detected ExampleGame... Oh well.\n");
 		}
 		
 		Class<?> gameClass = null;
@@ -82,28 +96,90 @@ public class Main {
 			}
 		}
 		
+		FirewoodGame annotation = gameClass.getAnnotation(FirewoodGame.class);
+		
+		Logger.println("Starting " + annotation.name() + (annotation.description().isEmpty() ? ", which has no description provided." : (": " + annotation.description())));
+		
+		GLFWErrorCallback.createPrint(new PrintStream(new Logger())).set();
+		
+		if(!glfwInit()) {
+			Logger.printErr("FATAL ERROR! Could not initialize GLFW!");
+			Logger.printErr("I mean, it is kind of hard to play a game without having a window...");
+			System.exit(1);
+		}
+		
+		glfwDefaultWindowHints();
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+		
+		window = glfwCreateWindow(640, 480, annotation.name(), NULL, NULL);
+		if(window == NULL) {
+			Logger.printErr("FATAL ERROR! Could not initialize GLFW!");
+			Logger.printErr("I mean, it is kind of hard to play a game without having a window...");
+			System.exit(1);
+		}
+		
+		glfwMakeContextCurrent(window);
+		glfwSwapInterval(1);
+		glfwShowWindow(window);
+		
+		GL.createCapabilities();
+		glClearColor(0,0,0,1);
+		
 		FirewoodParent game = null;
 		
 		try {
 			game = (FirewoodParent) gameClass.newInstance();
 		} catch(Error | Exception e) {
-			System.err.print("FATAL ERROR! ");
+			Logger.printErr("FATAL ERROR! ");
 			e.printStackTrace();
 			System.exit(1);
 		}
 		
-		FirewoodGame annotation = gameClass.getAnnotation(FirewoodGame.class);
-		
-		System.out.println("Starting " + annotation.name() + (annotation.description().isEmpty() ? ", which has no description provided." : (": " + annotation.description())));
-		
 		if(border == null) {
-			System.err.println("ERROR! Game didn't finish configuration!");
-			System.err.println("This isn't fatal; attempting to find correct config files...");
+			Logger.printErrln("ERROR! Game didn't finish configuration!");
+			Logger.printErrln("This isn't fatal; attempting to find correct config files...");
 			
-			// TODO: I'm tired, but here's psuedocode:
-			// 1. Get a list of all of the directories in /assets/
-			// 2. Run the list through Util.findClosestString(list, annotation.name())
-			// 3. Load config for missing items through there.
+			File root = new File("assets");
+			
+			String[] directories = root.list(new FilenameFilter() {
+				public boolean accept(File dir, String name) {
+					return new File(dir, name).isDirectory();
+				}
+			});
+			
+			for(int i = 0; i < directories.length; i++) {
+				Logger.println("Found directory: " + directories[i]);
+			}
+			
+			String bestDirectory = directories[Util.findClosestString(directories, gameClass.getTypeName())];
+			
+			Logger.println("Trying to find assets in /assets/" + bestDirectory + "...");
+			
+			if(border == null) { // Need border
+				Logger.println("Creating border...");
+				Logger.subTask();
+				border = new Border(bestDirectory);
+				Logger.returned();
+				Logger.println("Found border, lucky... do it yourself next time, developer.");
+			}
 		}
+		
+		while(!glfwWindowShouldClose(window)) {
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			// Game code here
+			glfwSwapBuffers(window);
+			glfwPollEvents();
+		}
+		
+		glfwFreeCallbacks(window);
+		glfwDestroyWindow(window);
+		
+		glfwTerminate();
+		glfwSetErrorCallback(null).free();
+	}
+	
+	public static void setBorder(Border newBorder) {
+		border = newBorder;
 	}
 }

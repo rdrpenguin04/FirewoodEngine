@@ -68,7 +68,7 @@ public class Util {
 	}
 	
 	public static double wordDifference(String a, String b) {
-		double phrase = valuePhrase(a,b)-0.8*Math.abs(b.length()-a.length());
+		double phrase = valuePhrase(a,b);
 		double words = valueWords(a,b);
 		return Math.max(phrase, words)*0.2+Math.min(phrase, words);
 	}

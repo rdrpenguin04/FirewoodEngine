@@ -18,7 +18,9 @@
  */
 package com.lightning.firewood.example;
 
+import com.lightning.firewood.display.Border;
 import com.lightning.firewood.identification.*;
+import com.lightning.firewood.util.Logger;
 
 /**
  * @author Ray Redondo
@@ -26,5 +28,9 @@ import com.lightning.firewood.identification.*;
  */
 @FirewoodGame(name="Example Game")
 public class ExampleGame extends FirewoodParent {
-
+	public ExampleGame() {
+		Logger.subTask();
+		setBorder(new Border("examplegame"));
+		Logger.returned();
+	}
 }
