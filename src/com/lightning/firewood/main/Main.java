@@ -21,8 +21,10 @@ package com.lightning.firewood.main;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.PrintStream;
+import java.nio.IntBuffer;
 import java.util.Set;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.reflections.*;
@@ -126,6 +128,13 @@ public class Main {
 		GL.createCapabilities();
 		glClearColor(0,0,0,1);
 		
+		glFrontFace(GL_CW);
+		glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
+
+		glEnable(GL_TEXTURE_2D);
+		
 		FirewoodParent game = null;
 		
 		try {
@@ -167,7 +176,41 @@ public class Main {
 		
 		while(!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			// Game code here
+			if(GameState.isMainGame()) {
+				// Check dimensions of window
+				IntBuffer w = BufferUtils.createIntBuffer(1);
+				IntBuffer h = BufferUtils.createIntBuffer(1);
+				glfwGetWindowSize(window, w, h);
+				int width = w.get(0);
+				int height = h.get(0);
+				double mainAspect = ((double)border.getTextureWidth(0)+border.getTextureWidth(2)+border.getTextureWidth(3))/(border.getTextureHeight(2)+border.getTextureHeight(0)+border.getTextureHeight(1));
+				
+				if(width/height >= mainAspect) {
+					// Side expansions
+					int expandWidth = (int)Math.ceil((width-mainAspect*height)/2);
+					glViewport(0, 0, expandWidth, height);
+					border.bindTexture(10);
+					glBegin(GL_QUADS);
+					{
+						glTexCoord2f(-height*(float)border.getTextureWidth(10)/border.getTextureHeight(10),0);
+						glVertex4f(0,0,1,1);
+						glTexCoord2f(0,0);
+						glVertex4f(1,0,1,1);
+						glTexCoord2f(0,1);
+						glVertex4f(1,1,1,1);
+						glTexCoord2f(-height*(float)border.getTextureWidth(10)/border.getTextureHeight(10),1);
+						glVertex4f(0,1,1,1);
+					}
+					glEnd();
+					glViewport(width-expandWidth, 0, expandWidth, height);
+				} else {
+					// Top/bottom expansions
+					int expandHeight = (int)Math.ceil((height-width/mainAspect)/2);
+					glViewport(0, 0, width, expandHeight);
+					glViewport(0, height-expandHeight, width, expandHeight);
+				}
+			}
+			
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}

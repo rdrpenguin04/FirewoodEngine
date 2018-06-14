@@ -2,7 +2,6 @@ package com.lightning.firewood.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 
 public class Logger extends OutputStream {
 	private static int subTasks = 0;

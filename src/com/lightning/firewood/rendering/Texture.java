@@ -44,42 +44,34 @@ public class Texture {
 		loadTexture(fileName);
 	}
 
-	protected void finalize()
-	{
+	protected void finalize() {
 		glDeleteBuffers(id);
 	}
 
-	public void bind()
-	{
+	public void bind() {
 		bind(0);
 	}
 
-	public void bind(int samplerSlot)
-	{
+	public void bind(int samplerSlot) {
 		assert(samplerSlot >= 0 && samplerSlot <= 31);
 		glActiveTexture(GL_TEXTURE0 + samplerSlot);
 		glBindTexture(GL_TEXTURE_2D, id);
 	}
 	
-	public int getID()
-	{
+	public int getID() {
 		return id;
 	}
 	
-	private void loadTexture(String fileName)
-	{
-		try
-		{
+	private void loadTexture(String fileName) {
+		try {
 			BufferedImage image = ImageIO.read(new File(fileName));
 			int[] pixels = image.getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());
 
 			ByteBuffer buffer = BufferUtils.createByteBuffer(image.getHeight() * image.getWidth() * 4);
 			boolean hasAlpha = image.getColorModel().hasAlpha();
 
-			for(int y = 0; y < image.getHeight(); y++)
-			{
-				for(int x = 0; x < image.getWidth(); x++)
-				{
+			for(int y = 0; y < image.getHeight(); y++) {
+				for(int x = 0; x < image.getWidth(); x++) {
 					int pixel = pixels[y * image.getWidth() + x];
 
 					buffer.put((byte)((pixel >> 16) & 0xFF));
@@ -104,11 +96,19 @@ public class Texture {
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-		}
-		catch(Exception e)
-		{
+		} catch(Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
+	}
+	
+	public int getWidth() {
+		glBindTexture(GL_TEXTURE_2D, id);
+		return glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH);
+	}
+	
+	public int getHeight() {
+		glBindTexture(GL_TEXTURE_2D, id);
+		return glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT);
 	}
 }
