@@ -114,7 +114,7 @@ public class Main {
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		
-		window = glfwCreateWindow(640, 480, annotation.name(), NULL, NULL);
+		window = glfwCreateWindow(896, 736, annotation.name(), NULL, NULL);
 		if(window == NULL) {
 			Logger.printErr("FATAL ERROR! Could not initialize GLFW!");
 			Logger.printErr("I mean, it is kind of hard to play a game without having a window...");
@@ -184,10 +184,10 @@ public class Main {
 				int width = w.get(0);
 				int height = h.get(0);
 				double mainAspect = ((double)border.getTextureWidth(0)+border.getTextureWidth(2)+border.getTextureWidth(3))/(border.getTextureHeight(2)+border.getTextureHeight(0)+border.getTextureHeight(1));
-				
+				System.out.println("mainAspect = " + mainAspect);
 				glViewport(0,0,width,height);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				if((float)width/height > mainAspect) {
+				if((float)width/height >= mainAspect) {
 					// Side expansions
 					int expandWidth = (int)Math.ceil((width-mainAspect*height)/2);
 					glViewport(0, 0, expandWidth, height);
@@ -210,9 +210,128 @@ public class Main {
 					{
 						glTexCoord2f(0,0);
 						glVertex4f(-1,-1,0,1);
-						glTexCoord2f(height*(float)border.getTextureWidth(10)/border.getTextureHeight(10),0);
+						glTexCoord2f(height*(float)border.getTextureWidth(11)/border.getTextureHeight(11),0);
 						glVertex4f( 1,-1,0,1);
-						glTexCoord2f(height*(float)border.getTextureWidth(10)/border.getTextureHeight(10),1);
+						glTexCoord2f(height*(float)border.getTextureWidth(11)/border.getTextureHeight(11),1);
+						glVertex4f( 1, 1,0,1);
+						glTexCoord2f(0,1);
+						glVertex4f(-1, 1,0,1);
+					}
+					glEnd();
+					
+					float sideHeight = height*((float)border.getTextureHeight(2)/((float)border.getTextureHeight(2)+border.getTextureHeight(0)+border.getTextureHeight(1)));
+					float sideWidth = (float)sideHeight*border.getTextureWidth(2)/border.getTextureHeight(2);
+					float tbWidth = (width-expandWidth*2)*((float)border.getTextureWidth(0)/((float)border.getTextureWidth(0)+border.getTextureWidth(2)+border.getTextureWidth(3)));
+					float tbHeight = (float)tbWidth*border.getTextureHeight(0)/border.getTextureWidth(0);
+					glViewport(expandWidth, (int)Math.ceil((height-sideHeight)/2), (int)Math.ceil(sideWidth), (int)Math.ceil(sideHeight));
+					border.bindTexture(2);
+					glBegin(GL_QUADS);
+					{
+						glTexCoord2f(0,0);
+						glVertex4f(-1,-1,0,1);
+						glTexCoord2f(1,0);
+						glVertex4f( 1,-1,0,1);
+						glTexCoord2f(1,1);
+						glVertex4f( 1, 1,0,1);
+						glTexCoord2f(0,1);
+						glVertex4f(-1, 1,0,1);
+					}
+					glEnd();
+					glViewport((int)Math.ceil(width-expandWidth-sideWidth), (int)Math.ceil((height-sideHeight)/2), (int)Math.ceil(sideWidth), (int)Math.ceil(sideHeight));
+					border.bindTexture(3);
+					glBegin(GL_QUADS);
+					{
+						glTexCoord2f(0,0);
+						glVertex4f(-1,-1,0,1);
+						glTexCoord2f(1,0);
+						glVertex4f( 1,-1,0,1);
+						glTexCoord2f(1,1);
+						glVertex4f( 1, 1,0,1);
+						glTexCoord2f(0,1);
+						glVertex4f(-1, 1,0,1);
+					}
+					glEnd();
+					
+					glViewport((int)Math.ceil((width-tbWidth)/2), 0, (int)Math.ceil(tbWidth), (int)Math.ceil(tbHeight));
+					border.bindTexture(0);
+					glBegin(GL_QUADS);
+					{
+						glTexCoord2f(0,0);
+						glVertex4f(-1,-1,0,1);
+						glTexCoord2f(1,0);
+						glVertex4f( 1,-1,0,1);
+						glTexCoord2f(1,1);
+						glVertex4f( 1, 1,0,1);
+						glTexCoord2f(0,1);
+						glVertex4f(-1, 1,0,1);
+					}
+					glEnd();
+					glViewport((int)Math.ceil((width-tbWidth)/2), (int)Math.ceil(height-tbHeight), (int)Math.ceil(tbWidth), (int)Math.ceil(tbHeight));
+					border.bindTexture(1);
+					glBegin(GL_QUADS);
+					{
+						glTexCoord2f(0,0);
+						glVertex4f(-1,-1,0,1);
+						glTexCoord2f(1,0);
+						glVertex4f( 1,-1,0,1);
+						glTexCoord2f(1,1);
+						glVertex4f( 1, 1,0,1);
+						glTexCoord2f(0,1);
+						glVertex4f(-1, 1,0,1);
+					}
+					glEnd();
+					
+					glViewport(expandWidth, 0, (int)Math.ceil(sideWidth), (int)Math.ceil(tbHeight));
+					border.bindTexture(4);
+					glBegin(GL_QUADS);
+					{
+						glTexCoord2f(0,0);
+						glVertex4f(-1,-1,0,1);
+						glTexCoord2f(1,0);
+						glVertex4f( 1,-1,0,1);
+						glTexCoord2f(1,1);
+						glVertex4f( 1, 1,0,1);
+						glTexCoord2f(0,1);
+						glVertex4f(-1, 1,0,1);
+					}
+					glEnd();
+					glViewport((int)Math.ceil(width-expandWidth-sideWidth), 0, (int)Math.ceil(sideWidth), (int)Math.ceil(tbHeight));
+					border.bindTexture(5);
+					glBegin(GL_QUADS);
+					{
+						glTexCoord2f(0,0);
+						glVertex4f(-1,-1,0,1);
+						glTexCoord2f(1,0);
+						glVertex4f( 1,-1,0,1);
+						glTexCoord2f(1,1);
+						glVertex4f( 1, 1,0,1);
+						glTexCoord2f(0,1);
+						glVertex4f(-1, 1,0,1);
+					}
+					glEnd();
+					glViewport(expandWidth, (int)Math.ceil((height-sideHeight)/2), (int)Math.ceil(sideWidth), (int)Math.ceil(tbHeight));
+					border.bindTexture(6);
+					glBegin(GL_QUADS);
+					{
+						glTexCoord2f(0,0);
+						glVertex4f(-1,-1,0,1);
+						glTexCoord2f(1,0);
+						glVertex4f( 1,-1,0,1);
+						glTexCoord2f(1,1);
+						glVertex4f( 1, 1,0,1);
+						glTexCoord2f(0,1);
+						glVertex4f(-1, 1,0,1);
+					}
+					glEnd();
+					glViewport((int)Math.ceil(width-expandWidth-sideWidth), (int)Math.ceil((height-sideHeight)/2), (int)Math.ceil(sideWidth), (int)Math.ceil(tbHeight));
+					border.bindTexture(7);
+					glBegin(GL_QUADS);
+					{
+						glTexCoord2f(0,0);
+						glVertex4f(-1,-1,0,1);
+						glTexCoord2f(1,0);
+						glVertex4f( 1,-1,0,1);
+						glTexCoord2f(1,1);
 						glVertex4f( 1, 1,0,1);
 						glTexCoord2f(0,1);
 						glVertex4f(-1, 1,0,1);
@@ -222,7 +341,7 @@ public class Main {
 					// Top/bottom expansions
 					int expandHeight = (int)Math.ceil((height-width/mainAspect)/2);
 					glViewport(0, 0, width, expandHeight);
-					border.bindTexture(12);
+					border.bindTexture(8);
 					glBegin(GL_QUADS);
 					{
 						glTexCoord2f(0,-width/(float)border.getTextureWidth(10)*border.getTextureHeight(10));
@@ -236,16 +355,16 @@ public class Main {
 					}
 					glEnd();
 					glViewport(0, height-expandHeight, width, expandHeight);
-					border.bindTexture(13);
+					border.bindTexture(9);
 					glBegin(GL_QUADS);
 					{
 						glTexCoord2f(0,0);
 						glVertex4f(-1,-1,0,1);
 						glTexCoord2f(1,0);
 						glVertex4f( 1,-1,0,1);
-						glTexCoord2f(1,width/(float)border.getTextureWidth(10)*border.getTextureHeight(10));
+						glTexCoord2f(1,width/(float)border.getTextureWidth(11)*border.getTextureHeight(11));
 						glVertex4f( 1, 1,0,1);
-						glTexCoord2f(0,width/(float)border.getTextureWidth(10)*border.getTextureHeight(10));
+						glTexCoord2f(0,width/(float)border.getTextureWidth(11)*border.getTextureHeight(11));
 						glVertex4f(-1, 1,0,1);
 					}
 					glEnd();

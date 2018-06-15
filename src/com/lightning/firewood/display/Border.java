@@ -29,7 +29,7 @@ public class Border {
 	
 	public Border(String gameDir) {
 		String borderResourceDir = "assets/" + gameDir + "/gfx/border/";
-		borderTextures = new Texture[20];
+		borderTextures = new Texture[12];
 		borderTextures[0] = new Texture(borderResourceDir+"upFixed.png");
 		borderTextures[1] = new Texture(borderResourceDir+"downFixed.png");
 		borderTextures[2] = new Texture(borderResourceDir+"leftFixed.png");
@@ -42,14 +42,6 @@ public class Border {
 		borderTextures[9] = new Texture(borderResourceDir+"downExpand.png");
 		borderTextures[10] = new Texture(borderResourceDir+"leftExpand.png");
 		borderTextures[11] = new Texture(borderResourceDir+"rightExpand.png");
-		borderTextures[12] = new Texture(borderResourceDir+"uulExpand.png");
-		borderTextures[13] = new Texture(borderResourceDir+"uurExpand.png");
-		borderTextures[14] = new Texture(borderResourceDir+"lulExpand.png");
-		borderTextures[15] = new Texture(borderResourceDir+"rurExpand.png");
-		borderTextures[16] = new Texture(borderResourceDir+"ldlExpand.png");
-		borderTextures[17] = new Texture(borderResourceDir+"rdrExpand.png");
-		borderTextures[18] = new Texture(borderResourceDir+"ddlExpand.png");
-		borderTextures[19] = new Texture(borderResourceDir+"ddrExpand.png");
 	}
 	
 	public void bindTexture(int texID) {
