@@ -175,6 +175,10 @@ public class Main {
 		}
 		
 		while(!glfwWindowShouldClose(window)) {
+			if(GameState.isPaused()) {
+				// TODO: Apply post-shader for half-bright
+			}
+			
 			if(GameState.isMainGame()) {
 				glDisable(GL_CULL_FACE); // Disabling culling suggested by Kristof09
 				// Check dimensions of window
@@ -325,6 +329,7 @@ public class Main {
 						glVertex4f(-sideWidth*2+1,-1,0,1);
 					}
 					glEnd();
+					glViewport((int)Math.floor(expandWidth+sideWidth), (int)Math.floor(tbHeight), (int)Math.ceil(width-2*(expandWidth+sideWidth)), (int)Math.ceil(height-2*tbHeight));
 				} else {
 					// Top/bottom expansions
 					int expandHeight = (int)Math.ceil((height-width/mainAspect)/2);
@@ -464,8 +469,13 @@ public class Main {
 						glVertex4f(-sideWidth*2+1,-1,0,1);
 					}
 					glEnd();
+					glViewport((int)Math.floor(sideWidth), (int)Math.floor(expandHeight+tbHeight), (int)Math.ceil(width-2*sideWidth), (int)Math.ceil(height-2*(expandHeight+tbHeight)));
 				}
 				glEnable(GL_CULL_FACE);
+			}
+			
+			if(GameState.isPaused()) {
+				// TODO: Remove half-bright post-shader
 			}
 			
 			glfwSwapBuffers(window);

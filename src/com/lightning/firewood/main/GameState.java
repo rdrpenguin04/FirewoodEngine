@@ -1,5 +1,5 @@
 /**
- * <insert description here>
+ * Stores the current state of the game.
  * 
  * Copyright (C) 2018 Lightning Creations
  *
@@ -23,8 +23,74 @@ package com.lightning.firewood.main;
  *
  */
 public class GameState {
+	public enum GameStateEnum {
+		MAIN_MENU(false, true, false, true, false, null),
+		MAIN_GAME(true, false, false, false, false, null),
+		MAIN_GAME_PAUSED(true, false, true, true, false, null),
+		LOAD_TO_MAIN_MENU(false, false, false, false, true, MAIN_MENU),
+		LOAD_TO_MAIN_GAME(false, false, false, false, true, MAIN_GAME),
+		LOAD_TO_MAIN_GAME_PAUSED(false, false, false, false, true, MAIN_GAME_PAUSED);
+		
+		boolean isMainGame;
+		boolean isMainMenu;
+		boolean isPaused;
+		boolean isMenu;
+		boolean isLoading;
+		GameStateEnum next;
+		
+		GameStateEnum(boolean isMainGame, boolean isMainMenu, boolean isPaused, boolean isMenu, boolean isLoading, GameStateEnum next) {
+			this.isMainGame = isMainGame;
+			this.isMainMenu = isMainMenu;
+			this.isPaused = isPaused;
+			this.isMenu = isMenu;
+			this.isLoading = isLoading;
+			this.next = next;
+		}
+		
+		public GameStateEnum pause() {
+			if(ordinal() == 0) return MAIN_GAME_PAUSED;
+			else return this;
+		}
+		
+		public GameStateEnum unpause() {
+			if(ordinal() == 1) return MAIN_GAME;
+			else return this;
+		}
+		
+		public GameStateEnum loadState(GameStateEnum next) {
+			if(next.ordinal() >= values().length) return next;
+			return values()[next.ordinal()+values().length/2];
+		}
+		
+		public GameStateEnum finishedLoading() {
+			if(next.ordinal() < values().length) return next;
+			return values()[next.ordinal()-values().length/2];
+		}
+	}
+
+	private static GameStateEnum state = GameStateEnum.LOAD_TO_MAIN_MENU;
+	
 	public static boolean isMainGame() {
-		// Before we have a title screen or credits... well, the only thing is the main game...
-		return true;
+		return state.isMainGame;
+	}
+	
+	public static boolean isPaused() {
+		return state.isPaused;
+	}
+	
+	public static boolean isMenu() {
+		return state.isMenu;
+	}
+	
+	public static void pause() {
+		state = state.pause();
+	}
+	
+	public static void unpause() {
+		state = state.unpause();
+	}
+	
+	public static void replaceGameState(GameStateEnum newState) {
+		state = newState;
 	}
 }
