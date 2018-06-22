@@ -1,9 +1,30 @@
+/**
+ * Asynchronous loading object
+ * 
+ * Copyright (C) 2018 Lightning Creations
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.lightning.firewood.loading;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.lang.reflect.ParameterizedType;
 
+/**
+ * @author Ray Redondo
+ *
+ */
 public class Resource<T extends ResourceType> implements Runnable {
 	public File file;
 	public Thread loaderThread;
@@ -11,8 +32,9 @@ public class Resource<T extends ResourceType> implements Runnable {
 	public volatile boolean error;
 	public volatile Throwable errorClass;
 	public volatile T result;
+	public Runnable postLoad;
 	
-	public Resource(File file) {
+	public Resource(File file, Runnable postLoad) {
 		this.file = file;
 		loaderThread = new Thread(this);
 		loaderThread.start();
@@ -32,5 +54,6 @@ public class Resource<T extends ResourceType> implements Runnable {
 			error = true;
 			finished = true;
 		}
+		postLoad.run();
 	}
 }
