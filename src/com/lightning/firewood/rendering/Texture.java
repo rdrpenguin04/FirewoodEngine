@@ -30,18 +30,24 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
 
+import com.lightning.firewood.loading.ResourceType;
 import com.lightning.firewood.util.Logger;
 
 /**
  * @author Benny Bobaganoosh, modified for Firewood by Ray Redondo
  *
  */
-public class Texture {
+public class Texture extends ResourceType {
 	private int id;
 	
 	public Texture(String fileName) {
 		Logger.println("Loading " + fileName + "...");
-		loadTexture(fileName);
+		load(new File(fileName));
+	}
+	
+	public Texture(File file) {
+		Logger.println("Loading " + file.getAbsolutePath() + "...");
+		load(file);
 	}
 
 	protected void finalize() {
@@ -62,9 +68,9 @@ public class Texture {
 		return id;
 	}
 	
-	private void loadTexture(String fileName) {
+	public void load(File file) {
 		try {
-			BufferedImage image = ImageIO.read(new File(fileName));
+			BufferedImage image = ImageIO.read(file);
 			int[] pixels = image.getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());
 
 			ByteBuffer buffer = BufferUtils.createByteBuffer(image.getHeight() * image.getWidth() * 4);

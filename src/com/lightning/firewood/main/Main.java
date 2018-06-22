@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.PrintStream;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.Set;
 
 import org.lwjgl.BufferUtils;
@@ -31,6 +32,7 @@ import org.reflections.*;
 
 import com.lightning.firewood.display.Border;
 import com.lightning.firewood.identification.*;
+import com.lightning.firewood.loading.Resource;
 import com.lightning.firewood.util.Logger;
 import com.lightning.firewood.util.Util;
 
@@ -46,6 +48,10 @@ import static org.lwjgl.system.MemoryUtil.*;
 public class Main {
 	private static Border border;
 	private static long window;
+	public static ArrayList<Resource<?>> resources = new ArrayList<>();
+	public static ArrayList<String> resNames = new ArrayList<>();
+	private static ArrayList<Resource<?>> toLoad = new ArrayList<>();
+	private static ArrayList<String> toLoadNames = new ArrayList<>();
 	
 	/**
 	 * The main function of the engine. Finds an annotated game and runs it.
@@ -174,7 +180,35 @@ public class Main {
 			}
 		}
 		
+		boolean wasLoading = false;
+		
 		while(!glfwWindowShouldClose(window)) {
+			if(GameState.isLoading()) {
+				if(!wasLoading) {
+					// TODO: Put loading texture on-screen
+					wasLoading = true;
+					Logger.println("Loading...");
+				}
+				for(int i = 0; i < toLoad.size(); i++) {
+					Resource<?> res = toLoad.get(i);
+					if(res.finished) {
+						if(res.error) {
+							Logger.printErrln("ERROR: Could not load " + res.file.getAbsolutePath() + "!");
+							Logger.printErrln("The game will decide whether this is fatal or not.");
+						}
+						resources.add(res);
+						resNames.add(toLoadNames.get(i));
+						toLoad.remove(i);
+						toLoadNames.remove(i);
+						i--; // We removed this object, so everything is now back one.
+					}
+				}
+				if(toLoad.size() == 0)
+					GameState.finishedLoading();
+			} else {
+				wasLoading = false;
+			}
+			
 			if(GameState.isPaused()) {
 				// TODO: Apply post-shader for half-bright
 			}
@@ -474,6 +508,11 @@ public class Main {
 				glEnable(GL_CULL_FACE);
 			}
 			
+			if(GameState.isMainMenu()) {
+				// Temporary before menu options are made
+				GameState.replaceGameState(GameState.GameStateEnum.LOAD_TO_MAIN_GAME);
+			}
+			
 			if(GameState.isPaused()) {
 				// TODO: Remove half-bright post-shader
 			}
@@ -491,5 +530,10 @@ public class Main {
 	
 	public static void setBorder(Border newBorder) {
 		border = newBorder;
+	}
+	
+	public static void queueLoad(Resource<?> resource, String name) {
+		toLoad.add(resource);
+		toLoadNames.add(name);
 	}
 }

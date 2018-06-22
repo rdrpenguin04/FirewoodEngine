@@ -63,8 +63,8 @@ public class GameState {
 		}
 		
 		public GameStateEnum finishedLoading() {
-			if(next.ordinal() < values().length) return next;
-			return values()[next.ordinal()-values().length/2];
+			if(ordinal() < values().length/2) return this;
+			return next;
 		}
 	}
 
@@ -72,6 +72,10 @@ public class GameState {
 	
 	public static boolean isMainGame() {
 		return state.isMainGame;
+	}
+	
+	public static boolean isMainMenu() {
+		return state.isMainMenu;
 	}
 	
 	public static boolean isPaused() {
@@ -82,12 +86,24 @@ public class GameState {
 		return state.isMenu;
 	}
 	
+	public static boolean isLoading() {
+		return state.isLoading;
+	}
+	
 	public static void pause() {
 		state = state.pause();
 	}
 	
 	public static void unpause() {
 		state = state.unpause();
+	}
+	
+	public static void loadState(GameStateEnum next) {
+		state = state.loadState(next);
+	}
+	
+	public static void finishedLoading() {
+		state = state.finishedLoading();
 	}
 	
 	public static void replaceGameState(GameStateEnum newState) {
