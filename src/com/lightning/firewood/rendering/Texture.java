@@ -40,13 +40,15 @@ import com.lightning.firewood.util.Logger;
 public class Texture extends ResourceType {
 	private int id;
 	
+	public Texture() {}
+	
 	public Texture(String fileName) {
-		Logger.println("Loading " + fileName + "...");
+		Logger.getLogger().println("Loading " + fileName + "...");
 		load(new File(fileName));
 	}
 	
 	public Texture(File file) {
-		Logger.println("Loading " + file.getAbsolutePath() + "...");
+		Logger.getLogger().println("Loading " + file.getAbsolutePath() + "...");
 		load(file);
 	}
 

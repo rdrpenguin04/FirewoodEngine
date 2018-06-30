@@ -109,4 +109,8 @@ public class GameState {
 	public static void replaceGameState(GameStateEnum newState) {
 		state = newState;
 	}
+	
+	public static GameStateEnum nextState() {
+		return state.next;
+	}
 }

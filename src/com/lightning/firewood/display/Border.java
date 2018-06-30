@@ -18,30 +18,26 @@
  */
 package com.lightning.firewood.display;
 
+import java.io.File;
+
+import com.lightning.firewood.loading.ResourceType;
 import com.lightning.firewood.rendering.*;
 
 /**
  * @author Ray Redondo
  *
  */
-public class Border {
+public class Border extends ResourceType {
 	private Texture[] borderTextures;
 	
+	public Border() {}
+	
 	public Border(String gameDir) {
-		String borderResourceDir = "assets/" + gameDir + "/gfx/border/";
-		borderTextures = new Texture[12];
-		borderTextures[0] = new Texture(borderResourceDir+"upFixed.png");
-		borderTextures[1] = new Texture(borderResourceDir+"downFixed.png");
-		borderTextures[2] = new Texture(borderResourceDir+"leftFixed.png");
-		borderTextures[3] = new Texture(borderResourceDir+"rightFixed.png");
-		borderTextures[4] = new Texture(borderResourceDir+"ulFixed.png");
-		borderTextures[5] = new Texture(borderResourceDir+"urFixed.png");
-		borderTextures[6] = new Texture(borderResourceDir+"dlFixed.png");
-		borderTextures[7] = new Texture(borderResourceDir+"drFixed.png");
-		borderTextures[8] = new Texture(borderResourceDir+"upExpand.png");
-		borderTextures[9] = new Texture(borderResourceDir+"downExpand.png");
-		borderTextures[10] = new Texture(borderResourceDir+"leftExpand.png");
-		borderTextures[11] = new Texture(borderResourceDir+"rightExpand.png");
+		this(new File("assets/" + gameDir + "/gfx/border/"));
+	}
+	
+	public Border(File gameDir) {
+		load(gameDir);
 	}
 	
 	public void bindTexture(int texID) {
@@ -54,5 +50,21 @@ public class Border {
 	
 	public int getTextureHeight(int texID) {
 		return borderTextures[texID].getHeight();
+	}
+
+	public void load(File f) {
+		borderTextures = new Texture[12];
+		borderTextures[0] = new Texture(f.getAbsolutePath()+"/upFixed.png");
+		borderTextures[1] = new Texture(f.getAbsolutePath()+"/downFixed.png");
+		borderTextures[2] = new Texture(f.getAbsolutePath()+"/leftFixed.png");
+		borderTextures[3] = new Texture(f.getAbsolutePath()+"/rightFixed.png");
+		borderTextures[4] = new Texture(f.getAbsolutePath()+"/ulFixed.png");
+		borderTextures[5] = new Texture(f.getAbsolutePath()+"/urFixed.png");
+		borderTextures[6] = new Texture(f.getAbsolutePath()+"/dlFixed.png");
+		borderTextures[7] = new Texture(f.getAbsolutePath()+"/drFixed.png");
+		borderTextures[8] = new Texture(f.getAbsolutePath()+"/upExpand.png");
+		borderTextures[9] = new Texture(f.getAbsolutePath()+"/downExpand.png");
+		borderTextures[10] = new Texture(f.getAbsolutePath()+"/leftExpand.png");
+		borderTextures[11] = new Texture(f.getAbsolutePath()+"/rightExpand.png");
 	}
 }

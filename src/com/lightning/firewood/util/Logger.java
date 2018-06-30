@@ -2,59 +2,95 @@ package com.lightning.firewood.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 
 public class Logger extends OutputStream {
-	private static int subTasks = 0;
+	private Integer subTasks = 0; // class version to preserve cross-object when copied later. ;)
 	private static boolean logGoing = false;
 	private static boolean errGoing = false;
+	private long threadID; // doesn't need to be class because it's constant cross-thread anyway
+	private static Long curThread = -1L; // class to synchronize off of
 	
-	public static void print(String text) {
-		if(text.indexOf("\n") != -1) { print(text.substring(0,text.indexOf("\n"))); println(); print(text.substring(text.indexOf("\n")+1)); return; }
-		if(errGoing) { System.err.println(); errGoing = false; }
-		if(!logGoing && text.length() != 0) {
-			System.out.print("LOG:\t");
-			logGoing = true;
-			for(int i = 0; i < subTasks; i++)
-				System.out.print('\t');
+	private static HashMap<Long, Logger> loggers = new HashMap<Long, Logger>();
+	
+	public Logger() {
+		long id = Thread.currentThread().getId();
+		if(loggers.containsKey(id)) {
+			Logger curLogger = loggers.get(id);
+			subTasks = curLogger.subTasks;
 		}
-		System.out.print(text);
+		threadID = id;
 	}
 	
-	public static void println() {
+	public static Logger getLogger() {
+		long id = Thread.currentThread().getId();
+		if(loggers.containsKey(id)) {
+			return loggers.get(id);
+		} else {
+			return new Logger();
+		}
+	}
+	
+	public void print(String text) {
+		synchronized(curThread) {
+			if(text.indexOf("\n") != -1) { print(text.substring(0,text.indexOf("\n"))); println(); print(text.substring(text.indexOf("\n")+1)); return; }
+			if(errGoing) { System.err.println(); errGoing = false; }
+			if(logGoing && curThread != threadID) { System.out.println(); logGoing = false; }
+			if(!logGoing && text.length() != 0) {
+				curThread = threadID;
+				System.out.print("(" + Thread.currentThread().getName() + ")\tLOG:\t");
+				logGoing = true;
+				for(int i = 0; i < subTasks; i++)
+					System.out.print('\t');
+			}
+			System.out.print(text);
+			try {
+				Thread.sleep(10); // Temporary to sync Eclipse.
+			} catch(InterruptedException e) {}
+		}
+	}
+	
+	public void println() {
 		System.out.println();
 		logGoing = false;
 	}
 	
-	public static void println(String text) {
+	public void println(String text) {
 		print(text+'\n');
 	}
 	
-	public static void printErr(String text) {
-		if(text.indexOf("\n") != -1) { printErr(text.substring(0,text.indexOf("\n"))); printErrln(); printErr(text.substring(text.indexOf("\n")+1)); return; }
-		if(logGoing) { System.out.println(); logGoing = false; }
-		if(!errGoing && text.length() != 0) {
-			System.err.print("ERR:\t");
-			errGoing = true;
-			for(int i = 0; i < subTasks; i++)
-				System.err.print('\t');
+	public void printErr(String text) {
+		synchronized(curThread) {
+			if(text.indexOf("\n") != -1) { printErr(text.substring(0,text.indexOf("\n"))); printErrln(); printErr(text.substring(text.indexOf("\n")+1)); return; }
+			if(logGoing) { System.out.println(); logGoing = false; }
+			if(errGoing && threadID != curThread) { System.err.println(); errGoing = false; }
+			if(!errGoing && text.length() != 0) {
+				System.err.print("(" + Thread.currentThread().getName() + ")\tERR:\t");
+				errGoing = true;
+				for(int i = 0; i < subTasks; i++)
+					System.err.print('\t');
+			}
+			System.err.print(text);
+			try {
+				Thread.sleep(10); // Temporary to sync Eclipse.
+			} catch(InterruptedException e) {}
 		}
-		System.err.print(text);
 	}
 	
-	public static void printErrln() {
+	public void printErrln() {
 		System.err.println();
 		errGoing = false;
 	}
 	
-	public static void printErrln(String text) {
+	public void printErrln(String text) {
 		printErr(text+'\n');
 	}
 	
-	public static void subTask() {
+	public void subTask() {
 		subTasks++;
 	}
 	
-	public static void returned() {
+	public void returned() {
 		subTasks--;
 	}
 	

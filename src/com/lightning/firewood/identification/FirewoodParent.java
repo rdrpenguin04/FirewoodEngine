@@ -19,6 +19,7 @@
 package com.lightning.firewood.identification;
 
 import com.lightning.firewood.display.Border;
+import com.lightning.firewood.main.GameState.GameStateEnum;
 import com.lightning.firewood.main.Main;
 
 /**
@@ -29,4 +30,6 @@ public abstract class FirewoodParent {
 	public void setBorder(Border newBorder) {
 		Main.setBorder(newBorder);
 	}
+	
+	public void startLoading(GameStateEnum toState) {} // Recommended to implement, but not strictly required.
 }

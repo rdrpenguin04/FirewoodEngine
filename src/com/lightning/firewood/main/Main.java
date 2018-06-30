@@ -33,6 +33,7 @@ import org.reflections.*;
 import com.lightning.firewood.display.Border;
 import com.lightning.firewood.identification.*;
 import com.lightning.firewood.loading.Resource;
+import com.lightning.firewood.rendering.Font;
 import com.lightning.firewood.util.Logger;
 import com.lightning.firewood.util.Util;
 
@@ -47,10 +48,11 @@ import static org.lwjgl.system.MemoryUtil.*;
  */
 public class Main {
 	private static Border border;
+	private static Font font;
 	private static long window;
-	public static ArrayList<Resource<?>> resources = new ArrayList<>();
+	public static ArrayList<Resource> resources = new ArrayList<>();
 	public static ArrayList<String> resNames = new ArrayList<>();
-	private static ArrayList<Resource<?>> toLoad = new ArrayList<>();
+	private static ArrayList<Resource> toLoad = new ArrayList<>();
 	private static ArrayList<String> toLoadNames = new ArrayList<>();
 	
 	/**
@@ -60,38 +62,39 @@ public class Main {
 	 * @param args The command line arguments. Not used at the moment.
 	 */
 	public static void main(String[] args) {
-		Logger.println(".########.####.########..########.##......##..#######...#######..########."); 
-		Logger.println(".##........##..##.....##.##.......##..##..##.##.....##.##.....##.##.....##"); 
-		Logger.println(".##........##..##.....##.##.......##..##..##.##.....##.##.....##.##.....##"); 
-		Logger.println(".######....##..########..######...##..##..##.##.....##.##.....##.##.....##"); 
-		Logger.println(".##........##..##...##...##.......##..##..##.##.....##.##.....##.##.....##"); 
-		Logger.println(".##........##..##....##..##.......##..##..##.##.....##.##.....##.##.....##"); 
-		Logger.println(".##.......####.##.....##.########..###..###...#######...#######..########.");
-		Logger.println("by Lightning Creations");
-		Logger.println();
-		Logger.println("Starting...");
-		Logger.println();
-		Logger.println("Searching for games...");
+		Logger logger = Logger.getLogger();
+		logger.println(".########.####.########..########.##......##..#######...#######..########."); 
+		logger.println(".##........##..##.....##.##.......##..##..##.##.....##.##.....##.##.....##"); 
+		logger.println(".##........##..##.....##.##.......##..##..##.##.....##.##.....##.##.....##"); 
+		logger.println(".######....##..########..######...##..##..##.##.....##.##.....##.##.....##"); 
+		logger.println(".##........##..##...##...##.......##..##..##.##.....##.##.....##.##.....##"); 
+		logger.println(".##........##..##....##..##.......##..##..##.##.....##.##.....##.##.....##"); 
+		logger.println(".##.......####.##.....##.########..###..###...#######...#######..########.");
+		logger.println("by Lightning Creations");
+		logger.println();
+		logger.println("Starting...");
+		logger.println();
+		logger.println("Searching for games...");
 		Reflections r = new Reflections("");
 		Set<Class<?>> gamesSet = r.getTypesAnnotatedWith(FirewoodGame.class);
 		Class<?>[] games = new Class<?>[gamesSet.size()];
 		int index = 0;
 		int exGameIndex = 0;
 		
-		Logger.println();
-		Logger.println("Found:");
+		logger.println();
+		logger.println("Found:");
 		
 		for(Class<?> game : gamesSet) {
 			games[index] = game;
-			Logger.println("\t* "+game.getName() + ": " + game.getName());
+			logger.println("\t* "+game.getName() + ": " + game.getName());
 			if(game.getName().equals("Example Game"))
 				exGameIndex = index;
 			index++;
 		}
-		Logger.println();
+		logger.println();
 		
 		if(games.length == 1) {
-			Logger.println("Only detected ExampleGame... Oh well.\n");
+			logger.println("Only detected ExampleGame... Oh well.\n");
 		}
 		
 		Class<?> gameClass = null;
@@ -106,13 +109,13 @@ public class Main {
 		
 		FirewoodGame annotation = gameClass.getAnnotation(FirewoodGame.class);
 		
-		Logger.println("Starting " + annotation.name() + (annotation.description().isEmpty() ? ", which has no description provided." : (": " + annotation.description())));
+		logger.println("Starting " + annotation.name() + (annotation.description().isEmpty() ? ", which has no description provided." : (": " + annotation.description())));
 		
 		GLFWErrorCallback.createPrint(new PrintStream(new Logger())).set();
 		
 		if(!glfwInit()) {
-			Logger.printErr("FATAL ERROR! Could not initialize GLFW!");
-			Logger.printErr("I mean, it is kind of hard to play a game without having a window...");
+			logger.printErr("FATAL ERROR! Could not initialize GLFW!");
+			logger.printErr("I mean, it is kind of hard to play a game without having a window...");
 			System.exit(1);
 		}
 		
@@ -122,8 +125,8 @@ public class Main {
 		
 		window = glfwCreateWindow(720, 480, annotation.name(), NULL, NULL);
 		if(window == NULL) {
-			Logger.printErr("FATAL ERROR! Could not initialize GLFW!");
-			Logger.printErr("I mean, it is kind of hard to play a game without having a window...");
+			logger.printErr("FATAL ERROR! Could not initialize GLFW!");
+			logger.printErr("I mean, it is kind of hard to play a game without having a window...");
 			System.exit(1);
 		}
 		
@@ -144,40 +147,13 @@ public class Main {
 		FirewoodParent game = null;
 		
 		try {
+			Logger.getLogger().subTask();
 			game = (FirewoodParent) gameClass.newInstance();
+			Logger.getLogger().returned();
 		} catch(Error | Exception e) {
-			Logger.printErr("FATAL ERROR! ");
+			logger.printErr("FATAL ERROR! ");
 			e.printStackTrace();
 			System.exit(1);
-		}
-		
-		if(border == null) {
-			Logger.printErrln("ERROR! Game didn't finish configuration!");
-			Logger.printErrln("This isn't fatal; attempting to find correct config files...");
-			
-			File root = new File("assets");
-			
-			String[] directories = root.list(new FilenameFilter() {
-				public boolean accept(File dir, String name) {
-					return new File(dir, name).isDirectory();
-				}
-			});
-			
-			for(int i = 0; i < directories.length; i++) {
-				Logger.println("Found directory: " + directories[i]);
-			}
-			
-			String bestDirectory = directories[Util.findClosestString(directories, gameClass.getTypeName())];
-			
-			Logger.println("Trying to find assets in /assets/" + bestDirectory + "...");
-			
-			if(border == null) { // Need border
-				Logger.println("Creating border...");
-				Logger.subTask();
-				border = new Border(bestDirectory);
-				Logger.returned();
-				Logger.println("Found border, lucky... do it yourself next time, developer.");
-			}
 		}
 		
 		boolean wasLoading = false;
@@ -187,14 +163,15 @@ public class Main {
 				if(!wasLoading) {
 					// TODO: Put loading texture on-screen
 					wasLoading = true;
-					Logger.println("Loading...");
+					logger.println("Loading...");
+					game.startLoading(GameState.nextState());
 				}
 				for(int i = 0; i < toLoad.size(); i++) {
-					Resource<?> res = toLoad.get(i);
+					Resource res = toLoad.get(i);
 					if(res.finished) {
 						if(res.error) {
-							Logger.printErrln("ERROR: Could not load " + res.file.getAbsolutePath() + "!");
-							Logger.printErrln("The game will decide whether this is fatal or not.");
+							logger.printErrln("ERROR: Could not load " + res.file.getAbsolutePath() + "!");
+							logger.printErrln("The game will decide whether this is fatal or not.");
 						}
 						resources.add(res);
 						resNames.add(toLoadNames.get(i));
@@ -203,10 +180,10 @@ public class Main {
 						i--; // We removed this object, so everything is now back one.
 					}
 				}
-				if(toLoad.size() == 0)
+				if(toLoad.size() == 0) {
 					GameState.finishedLoading();
-			} else {
-				wasLoading = false;
+					wasLoading = false;
+				}
 			}
 			
 			if(GameState.isPaused()) {
@@ -214,6 +191,34 @@ public class Main {
 			}
 			
 			if(GameState.isMainGame()) {
+				if(border == null) {
+					logger.printErrln("ERROR! Game didn't configure border!");
+					logger.printErrln("This isn't fatal; attempting to find border graphics...");
+					
+					File root = new File("assets");
+					
+					String[] directories = root.list(new FilenameFilter() {
+						public boolean accept(File dir, String name) {
+							return new File(dir, name).isDirectory();
+						}
+					});
+					
+					for(int i = 0; i < directories.length; i++) {
+						logger.println("Found directory: " + directories[i]);
+					}
+					
+					String bestDirectory = directories[Util.findClosestString(directories, gameClass.getTypeName())];
+					
+					logger.println("Trying to find border in /assets/" + bestDirectory + "...");
+					
+					if(border == null) { // Need border
+						logger.println("Creating border...");
+						logger.subTask();
+						border = new Border(bestDirectory);
+						logger.returned();
+						logger.println("Found border, lucky... do it yourself next time, developer.");
+					}
+				}
 				glDisable(GL_CULL_FACE); // Disabling culling suggested by Kristof09
 				// Check dimensions of window
 				IntBuffer w = BufferUtils.createIntBuffer(1);
@@ -510,6 +515,37 @@ public class Main {
 			
 			if(GameState.isMainMenu()) {
 				// Temporary before menu options are made
+				if(font == null) {
+					logger.printErrln("ERROR! Game didn't configure font!");
+					logger.printErrln("This isn't fatal; attempting to find font graphics...");
+					
+					File root = new File("assets");
+					
+					String[] directories = root.list(new FilenameFilter() {
+						public boolean accept(File dir, String name) {
+							return new File(dir, name).isDirectory();
+						}
+					});
+					
+					for(int i = 0; i < directories.length; i++) {
+						logger.println("Found directory: " + directories[i]);
+					}
+					
+					String bestDirectory = directories[Util.findClosestString(directories, gameClass.getTypeName())];
+					
+					logger.println("Trying to find font in /assets/" + bestDirectory + "...");
+					
+					logger.println("Creating font...");
+					logger.subTask();
+					if(new File("assets/" + bestDirectory + "/gfx/font/font.bmp").exists())
+						font = new Font("assets/" + bestDirectory + "/gfx/font/font.bmp");
+					else {
+						logger.printErrln("FATAL ERROR! Font is not there!");
+						System.exit(1);
+					}
+					logger.returned();
+					logger.println("Found font, lucky... do it yourself next time, developer.");
+				}
 				GameState.replaceGameState(GameState.GameStateEnum.LOAD_TO_MAIN_GAME);
 			}
 			
@@ -532,8 +568,16 @@ public class Main {
 		border = newBorder;
 	}
 	
-	public static void queueLoad(Resource<?> resource, String name) {
-		toLoad.add(resource);
-		toLoadNames.add(name);
+	public static void setFont(Font newFont) {
+		font = newFont;
+	}
+	
+	public static void queueLoad(Resource resource, String name) {
+		if(resNames.contains(name)) {
+			resource.postLoad.invoke(resource);
+		} else {
+			toLoad.add(resource);
+			toLoadNames.add(name);
+		}
 	}
 }

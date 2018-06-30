@@ -19,34 +19,38 @@
 package com.lightning.firewood.loading;
 
 import java.io.File;
-import java.lang.reflect.ParameterizedType;
+
+import org.lwjgl.opengl.GL;
+
+import com.lightning.firewood.util.Invokable;
 
 /**
  * @author Ray Redondo
  *
  */
-public class Resource<T extends ResourceType> implements Runnable {
+public class Resource implements Runnable {
+	private Thread loaderThread;
+	private Class<? extends ResourceType> type;
+
 	public File file;
-	public Thread loaderThread;
-	public volatile boolean finished;
-	public volatile boolean error;
-	public volatile Throwable errorClass;
-	public volatile T result;
-	public Runnable postLoad;
+	public boolean finished;
+	public boolean error;
+	public Throwable errorClass;
+	public ResourceType result;
+	public Invokable postLoad;
 	
-	public Resource(File file, Runnable postLoad) {
+	public Resource(File file, Class<? extends ResourceType> type, Invokable postLoad) {
 		this.file = file;
-		loaderThread = new Thread(this);
-		loaderThread.start();
+		this.type = type;
+		this.postLoad = postLoad;
+//		loaderThread = new Thread(this);
+//		loaderThread.start();
+		run(); // Because OpenGL hates multithreading
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void run() {
 		try {
-			// From Stack Overflow
-			// Get the class name of this instance's type.
-			result = (T) ((Class<? extends T>)((ParameterizedType)this.getClass().
-				       getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
+			result = type.newInstance();
 			result.load(file);
 			finished = true;
 		} catch(Exception | Error e) {
@@ -54,6 +58,6 @@ public class Resource<T extends ResourceType> implements Runnable {
 			error = true;
 			finished = true;
 		}
-		postLoad.run();
+		postLoad.invoke(this);
 	}
 }

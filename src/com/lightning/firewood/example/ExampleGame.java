@@ -18,8 +18,15 @@
  */
 package com.lightning.firewood.example;
 
+import java.io.File;
+
 import com.lightning.firewood.display.Border;
 import com.lightning.firewood.identification.*;
+import com.lightning.firewood.loading.Resource;
+import com.lightning.firewood.main.GameState.GameStateEnum;
+import com.lightning.firewood.main.Main;
+import com.lightning.firewood.rendering.Font;
+import com.lightning.firewood.util.Invokable;
 import com.lightning.firewood.util.Logger;
 
 /**
@@ -29,8 +36,33 @@ import com.lightning.firewood.util.Logger;
 @FirewoodGame(name="Example Game")
 public class ExampleGame extends FirewoodParent {
 	public ExampleGame() {
-		Logger.subTask();
-		setBorder(new Border("examplegame"));
-		Logger.returned();
+		Logger.getLogger().println("Here is where any initialization code would go. Not that you would really need any.");
+	}
+	
+	@Override
+	public void startLoading(GameStateEnum nextState) {
+		if(nextState.equals(GameStateEnum.MAIN_GAME)) {
+			Resource borderResource = new Resource(new File("assets/examplegame/gfx/border"), Border.class, new Invokable() {
+				public void invoke(Object... params) {
+					Resource resource = (Resource) params[0];
+					if(resource.error) {
+						Logger.getLogger().printErrln("Error?");
+					}
+					Main.setBorder((Border) resource.result);
+				}
+			});
+			Main.queueLoad(borderResource, "border");
+		} else if(nextState.equals(GameStateEnum.MAIN_MENU)) {
+			Resource fontResource = new Resource(new File("assets/examplegame/gfx/font/font.bmp"), Font.class, new Invokable() {
+				public void invoke(Object... params) {
+					Resource resource = (Resource) params[0];
+					if(resource.error) {
+						Logger.getLogger().printErrln("Error?");
+					}
+					Main.setFont((Font) resource.result);
+				}
+			});
+			Main.queueLoad(fontResource, "font");
+		}
 	}
 }
