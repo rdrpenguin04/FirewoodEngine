@@ -33,6 +33,8 @@ import org.reflections.*;
 import com.lightning.firewood.display.Border;
 import com.lightning.firewood.identification.*;
 import com.lightning.firewood.loading.Resource;
+import com.lightning.firewood.menu.Menu;
+import com.lightning.firewood.menu.MenuNode;
 import com.lightning.firewood.rendering.Font;
 import com.lightning.firewood.util.Logger;
 import com.lightning.firewood.util.Util;
@@ -54,6 +56,7 @@ public class Main {
 	public static ArrayList<String> resNames = new ArrayList<>();
 	private static ArrayList<Resource> toLoad = new ArrayList<>();
 	private static ArrayList<String> toLoadNames = new ArrayList<>();
+	private static Menu curMenu;
 	
 	/**
 	 * The main function of the engine. Finds an annotated game and runs it.
@@ -513,8 +516,11 @@ public class Main {
 				glEnable(GL_CULL_FACE);
 			}
 			
-			if(GameState.isMainMenu()) {
-				// Temporary before menu options are made
+			if(GameState.isPaused()) {
+				// TODO: Remove half-bright post-shader
+			}
+			
+			if(GameState.isMenu()) {
 				if(font == null) {
 					logger.printErrln("ERROR! Game didn't configure font!");
 					logger.printErrln("This isn't fatal; attempting to find font graphics...");
@@ -546,11 +552,36 @@ public class Main {
 					logger.returned();
 					logger.println("Found font, lucky... do it yourself next time, developer.");
 				}
-				GameState.replaceGameState(GameState.GameStateEnum.LOAD_TO_MAIN_GAME);
-			}
-			
-			if(GameState.isPaused()) {
-				// TODO: Remove half-bright post-shader
+				
+				if(curMenu == null) {
+					logger.printErrln("FATAL ERROR! There is no active menu!");
+					System.exit(1);
+				}
+
+				IntBuffer w = BufferUtils.createIntBuffer(1);
+				IntBuffer h = BufferUtils.createIntBuffer(1);
+				glfwGetWindowSize(window, w, h);
+				int width = w.get(0);
+				int height = h.get(0);
+				glViewport(0,0,width,height);
+				glDisable(GL_CULL_FACE);
+				for(int i = 0; i < curMenu.nodes.length; i++) {
+					MenuNode curNode = curMenu.nodes[i];
+					curNode.graphic.bind();
+					glBegin(GL_QUADS);
+					{
+						glTexCoord2f(0,0);
+						glVertex4f(curNode.x,curNode.y,0,1);
+						glTexCoord2f(1,0);
+						glVertex4f(curNode.x+curNode.width,curNode.y,0,1);
+						glTexCoord2f(1,1);
+						glVertex4f(curNode.x+curNode.width,curNode.y+curNode.height,0,1);
+						glTexCoord2f(0,1);
+						glVertex4f(curNode.x,curNode.y+curNode.height,0,1);
+					}
+					glEnd();
+				}
+				glEnable(GL_CULL_FACE);
 			}
 			
 			glfwSwapBuffers(window);
@@ -570,6 +601,10 @@ public class Main {
 	
 	public static void setFont(Font newFont) {
 		font = newFont;
+	}
+	
+	public static void setCurMenu(Menu newMenu) {
+		curMenu = newMenu;
 	}
 	
 	public static void queueLoad(Resource resource, String name) {

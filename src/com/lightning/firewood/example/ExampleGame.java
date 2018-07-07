@@ -23,9 +23,14 @@ import java.io.File;
 import com.lightning.firewood.display.Border;
 import com.lightning.firewood.identification.*;
 import com.lightning.firewood.loading.Resource;
+import com.lightning.firewood.main.GameState;
 import com.lightning.firewood.main.GameState.GameStateEnum;
 import com.lightning.firewood.main.Main;
+import com.lightning.firewood.menu.Menu;
+import com.lightning.firewood.menu.MenuNode;
+import com.lightning.firewood.menu.MenuTrigger;
 import com.lightning.firewood.rendering.Font;
+import com.lightning.firewood.rendering.Texture;
 import com.lightning.firewood.util.Invokable;
 import com.lightning.firewood.util.Logger;
 
@@ -63,6 +68,9 @@ public class ExampleGame extends FirewoodParent {
 				}
 			});
 			Main.queueLoad(fontResource, "font");
+			Main.setCurMenu(new Menu(new MenuNode[] {
+				new MenuTrigger(new Texture("assets/examplegame/gfx/menu/button.png"), "Main game", -0.5f, -0.25f, 1, 0.5f, new Runnable() { public void run() { GameState.loadState(GameStateEnum.MAIN_GAME); } })
+			}));
 		}
 	}
 }
