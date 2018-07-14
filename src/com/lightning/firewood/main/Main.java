@@ -135,6 +135,8 @@ public class Main {
 		
 		glfwMakeContextCurrent(window);
 		glfwSwapInterval(1);
+		glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
+		glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
 		glfwShowWindow(window);
 		
 		GL.createCapabilities();
@@ -163,6 +165,7 @@ public class Main {
 		}
 		
 		boolean wasLoading = false;
+		boolean mouseDown = false;
 		
 		while(!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -228,11 +231,11 @@ public class Main {
 				}
 				glDisable(GL_CULL_FACE); // Disabling culling suggested by Kristof09
 				// Check dimensions of window
-				IntBuffer w = BufferUtils.createIntBuffer(1);
-				IntBuffer h = BufferUtils.createIntBuffer(1);
+				int[] w = new int[1];
+				int[] h = new int[1];
 				glfwGetWindowSize(window, w, h);
-				int width = w.get(0);
-				int height = h.get(0);
+				int width = w[0];
+				int height = h[0];
 				double mainAspect = ((double)border.getTextureWidth(0)+border.getTextureWidth(2)+border.getTextureWidth(3))/(border.getTextureHeight(2)+border.getTextureHeight(0)+border.getTextureHeight(1));
 				glViewport(0,0,width,height);
 				if((float)width/height >= mainAspect) {
@@ -594,6 +597,24 @@ public class Main {
 					else
 						font.render(curNode.text, curNode.x+(curNode.width-textAspect/buttonAspect*textWidth/font.bmpTexture.getWidth()*128)/2, curNode.y, 0.4f, textAspect/buttonAspect*curNode.height);
 					Need to correct this code, commented until fixed.*/
+				}
+				if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+					mouseDown = true;
+				} else if(mouseDown == true) {
+					System.out.println("PRESS");
+					mouseDown = false;
+					double[] xpos = new double[1];
+					double[] ypos = new double[1];
+					glfwGetCursorPos(window, xpos, ypos);
+					double x = xpos[0]/width*2-1;
+					double y = ypos[0]/height*-2+1;
+					for(int i = 0; i < curMenu.nodes.length; i++) {
+						MenuNode curNode = curMenu.nodes[i];
+						if(x >= curNode.x && x < curNode.x + curNode.width && y >= curNode.y && y < curNode.y + curNode.height) {
+							curNode.go();
+							break;
+						}
+					}
 				}
 				glEnable(GL_CULL_FACE);
 			}
