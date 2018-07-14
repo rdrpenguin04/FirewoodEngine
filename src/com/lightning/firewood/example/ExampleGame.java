@@ -69,7 +69,7 @@ public class ExampleGame extends FirewoodParent {
 			});
 			Main.queueLoad(fontResource, "font");
 			Main.setCurMenu(new Menu(new MenuNode[] {
-				new MenuTrigger(new Texture("assets/examplegame/gfx/menu/button.png"), "Main game", -0.5f, -0.25f, 1, 0.5f, new Runnable() { public void run() { GameState.loadState(GameStateEnum.MAIN_GAME); } })
+				new MenuTrigger(new Texture("assets/examplegame/gfx/menu/button.png"), "Play", -0.5f, -0.125f, 1, 0.25f, new Runnable() { public void run() { GameState.loadState(GameStateEnum.MAIN_GAME); } })
 			}));
 		}
 	}

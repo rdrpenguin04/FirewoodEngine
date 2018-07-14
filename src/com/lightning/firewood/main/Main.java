@@ -147,6 +147,9 @@ public class Main {
 
 		glEnable(GL_TEXTURE_2D);
 		
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
 		FirewoodParent game = null;
 		
 		try {
@@ -162,9 +165,10 @@ public class Main {
 		boolean wasLoading = false;
 		
 		while(!glfwWindowShouldClose(window)) {
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			if(GameState.isLoading()) {
+				// TODO: Put loading texture on-screen
 				if(!wasLoading) {
-					// TODO: Put loading texture on-screen
 					wasLoading = true;
 					logger.println("Loading...");
 					game.startLoading(GameState.nextState());
@@ -231,7 +235,6 @@ public class Main {
 				int height = h.get(0);
 				double mainAspect = ((double)border.getTextureWidth(0)+border.getTextureWidth(2)+border.getTextureWidth(3))/(border.getTextureHeight(2)+border.getTextureHeight(0)+border.getTextureHeight(1));
 				glViewport(0,0,width,height);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				if((float)width/height >= mainAspect) {
 					// Side expansions
 					int expandWidth = (int)Math.ceil((width-mainAspect*height)/2);
@@ -571,15 +574,26 @@ public class Main {
 					glBegin(GL_QUADS);
 					{
 						glTexCoord2f(0,0);
-						glVertex4f(curNode.x,curNode.y,0,1);
+						glVertex4f(curNode.x,curNode.y,0.5f,1);
 						glTexCoord2f(1,0);
-						glVertex4f(curNode.x+curNode.width,curNode.y,0,1);
+						glVertex4f(curNode.x+curNode.width,curNode.y,0.5f,1);
 						glTexCoord2f(1,1);
-						glVertex4f(curNode.x+curNode.width,curNode.y+curNode.height,0,1);
+						glVertex4f(curNode.x+curNode.width,curNode.y+curNode.height,0.5f,1);
 						glTexCoord2f(0,1);
-						glVertex4f(curNode.x,curNode.y+curNode.height,0,1);
+						glVertex4f(curNode.x,curNode.y+curNode.height,0.5f,1);
 					}
 					glEnd();
+					float textWidth = font.getWidth(curNode.text);
+					float textHeight = font.getHeight(curNode.text);
+					float textAspect = textWidth/textHeight;
+					float buttonAspect = curNode.width/curNode.height;
+					if(textAspect == buttonAspect)
+						font.render(curNode.text, curNode.x, curNode.y, 0.4f, curNode.height);
+					/*else if(textAspect > buttonAspect)
+						font.render(curNode.text, curNode.x, curNode.y-(curNode.height-buttonAspect/textAspect*textHeight/font.bmpTexture.getHeight())/2, 0.4f, buttonAspect/textAspect*curNode.height);
+					else
+						font.render(curNode.text, curNode.x+(curNode.width-textAspect/buttonAspect*textWidth/font.bmpTexture.getWidth()*128)/2, curNode.y, 0.4f, textAspect/buttonAspect*curNode.height);
+					Need to correct this code, commented until fixed.*/
 				}
 				glEnable(GL_CULL_FACE);
 			}

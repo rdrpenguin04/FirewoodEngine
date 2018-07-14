@@ -23,6 +23,8 @@ import java.io.File;
 import com.lightning.firewood.loading.ResourceType;
 import com.lightning.firewood.util.Logger;
 
+import static org.lwjgl.opengl.GL11.*;
+
 /**
  * @author Ray Redondo
  *
@@ -30,7 +32,7 @@ import com.lightning.firewood.util.Logger;
 public class Font extends ResourceType {
 	private FontType type;
 	
-	private Texture bmpTexture = null;
+	public Texture bmpTexture = null;
 	
 	public Font() {}
 	
@@ -49,8 +51,41 @@ public class Font extends ResourceType {
 			// Bitmap monospace font. Assuming 7-bit (ASCII or compatible).
 			type = FontType.ASCII_BMP;
 			Logger.getLogger().subTask();
-			bmpTexture = new Texture(f);
+			bmpTexture = new Texture();
+			bmpTexture.forceAlphaOnWhite = true;
+			bmpTexture.load(f);
 			Logger.getLogger().returned();
+			
+		}
+	}
+
+	public int getWidth(String text) {
+		if(type == FontType.ASCII_BMP) return text.length() * bmpTexture.getWidth()/128;
+		else return -1; // Hmm...
+	}
+	
+	public int getHeight(String text) {
+		if(type == FontType.ASCII_BMP) return bmpTexture.getHeight();
+		else return -1; // Hmm...
+	}
+	
+	public void render(String text, float x, float y, float z, float scale) {
+		switch(type) {
+		case ASCII_BMP:
+			for(int i = 0; i < text.length(); i++) {
+				glBegin(GL_QUADS);
+				{
+					glTexCoord2f(((int)text.charAt(i))/128.0f, 1);
+					glVertex4f(x+i*scale, y, z, 1);
+					glTexCoord2f(((int)text.charAt(i)+1)/128.0f, 1);
+					glVertex4f(x+(i+1)*scale, y, z, 1);
+					glTexCoord2f(((int)text.charAt(i)+1)/128.0f, 0);
+					glVertex4f(x+(i+1)*scale, y+scale, z, 1);
+					glTexCoord2f(((int)text.charAt(i))/128.0f, 0);
+					glVertex4f(x+i*scale, y+scale, z, 1);
+				}
+				glEnd();
+			}
 		}
 	}
 	

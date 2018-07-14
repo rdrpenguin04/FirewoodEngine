@@ -22,11 +22,17 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL15.glDeleteBuffers;
 
+import java.awt.Frame;
+import java.awt.Image;
+import java.awt.MediaTracker;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.awt.image.PixelGrabber;
 import java.io.File;
 import java.nio.ByteBuffer;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 import org.lwjgl.BufferUtils;
 
@@ -39,6 +45,8 @@ import com.lightning.firewood.util.Logger;
  */
 public class Texture extends ResourceType {
 	private int id;
+	
+	public boolean forceAlphaOnWhite = false;
 	
 	public Texture() {}
 	
@@ -73,10 +81,11 @@ public class Texture extends ResourceType {
 	public void load(File file) {
 		try {
 			BufferedImage image = ImageIO.read(file);
+			boolean hasAlpha = image.getColorModel().hasAlpha();
+			
 			int[] pixels = image.getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());
 
 			ByteBuffer buffer = BufferUtils.createByteBuffer(image.getHeight() * image.getWidth() * 4);
-			boolean hasAlpha = image.getColorModel().hasAlpha();
 
 			for(int y = 0; y < image.getHeight(); y++) {
 				for(int x = 0; x < image.getWidth(); x++) {
@@ -85,7 +94,9 @@ public class Texture extends ResourceType {
 					buffer.put((byte)((pixel >> 16) & 0xFF));
 					buffer.put((byte)((pixel >> 8) & 0xFF));
 					buffer.put((byte)((pixel) & 0xFF));
-					if(hasAlpha)
+					if(forceAlphaOnWhite && ((pixel & 0xFFFFFF) == 0xFFFFFF))
+						buffer.put((byte)0);
+					else if(hasAlpha)
 						buffer.put((byte)((pixel >> 24) & 0xFF));
 					else
 						buffer.put((byte)(0xFF));
@@ -100,8 +111,8 @@ public class Texture extends ResourceType {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 		} catch(Exception e) {
