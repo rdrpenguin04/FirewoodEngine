@@ -571,19 +571,27 @@ public class Main {
 				int height = h.get(0);
 				glViewport(0,0,width,height);
 				glDisable(GL_CULL_FACE);
+				float xMult, yMult;
+				if(width > height) {
+					xMult = (float)height/width;
+					yMult = 1;
+				} else {
+					xMult = 1;
+					yMult = (float)width/height;
+				}
 				for(int i = 0; i < curMenu.nodes.length; i++) {
 					MenuNode curNode = curMenu.nodes[i];
 					curNode.graphic.bind();
 					glBegin(GL_QUADS);
 					{
 						glTexCoord2f(0,0);
-						glVertex4f(curNode.x,curNode.y,0.5f,1);
+						glVertex4f(xMult*curNode.x,yMult*curNode.y,0.5f,1);
 						glTexCoord2f(1,0);
-						glVertex4f(curNode.x+curNode.width,curNode.y,0.5f,1);
+						glVertex4f(xMult*(curNode.x+curNode.width),yMult*curNode.y,0.5f,1);
 						glTexCoord2f(1,1);
-						glVertex4f(curNode.x+curNode.width,curNode.y+curNode.height,0.5f,1);
+						glVertex4f(xMult*(curNode.x+curNode.width),yMult*(curNode.y+curNode.height),0.5f,1);
 						glTexCoord2f(0,1);
-						glVertex4f(curNode.x,curNode.y+curNode.height,0.5f,1);
+						glVertex4f(xMult*(curNode.x),yMult*(curNode.y+curNode.height),0.5f,1);
 					}
 					glEnd();
 					float textWidth = font.getWidth(curNode.text);
@@ -591,7 +599,7 @@ public class Main {
 					float textAspect = textWidth/textHeight;
 					float buttonAspect = curNode.width/curNode.height;
 					if(textAspect == buttonAspect)
-						font.render(curNode.text, curNode.x, curNode.y, 0.4f, curNode.height);
+						font.render(curNode.text, xMult*curNode.x, yMult*curNode.y, 0.4f, xMult*curNode.height, yMult*curNode.height);
 					/*else if(textAspect > buttonAspect)
 						font.render(curNode.text, curNode.x, curNode.y-(curNode.height-buttonAspect/textAspect*textHeight/font.bmpTexture.getHeight())/2, 0.4f, buttonAspect/textAspect*curNode.height);
 					else

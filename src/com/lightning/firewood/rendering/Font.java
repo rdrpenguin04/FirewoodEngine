@@ -69,20 +69,20 @@ public class Font extends ResourceType {
 		else return -1; // Hmm...
 	}
 	
-	public void render(String text, float x, float y, float z, float scale) {
+	public void render(String text, float x, float y, float z, float scaleX, float scaleY) {
 		switch(type) {
 		case ASCII_BMP:
 			for(int i = 0; i < text.length(); i++) {
 				glBegin(GL_QUADS);
 				{
 					glTexCoord2f(((int)text.charAt(i))/128.0f, 1);
-					glVertex4f(x+i*scale, y, z, 1);
+					glVertex4f(x+i*scaleX, y, z, 1);
 					glTexCoord2f(((int)text.charAt(i)+1)/128.0f, 1);
-					glVertex4f(x+(i+1)*scale, y, z, 1);
+					glVertex4f(x+(i+1)*scaleX, y, z, 1);
 					glTexCoord2f(((int)text.charAt(i)+1)/128.0f, 0);
-					glVertex4f(x+(i+1)*scale, y+scale, z, 1);
+					glVertex4f(x+(i+1)*scaleX, y+scaleY, z, 1);
 					glTexCoord2f(((int)text.charAt(i))/128.0f, 0);
-					glVertex4f(x+i*scale, y+scale, z, 1);
+					glVertex4f(x+i*scaleX, y+scaleY, z, 1);
 				}
 				glEnd();
 			}
