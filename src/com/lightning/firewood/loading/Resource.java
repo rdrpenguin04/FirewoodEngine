@@ -20,8 +20,6 @@ package com.lightning.firewood.loading;
 
 import java.io.File;
 
-import org.lwjgl.opengl.GL;
-
 import com.lightning.firewood.util.Invokable;
 
 /**
@@ -29,7 +27,7 @@ import com.lightning.firewood.util.Invokable;
  *
  */
 public class Resource implements Runnable {
-	private Thread loaderThread;
+	//private Thread loaderThread;
 	private Class<? extends ResourceType> type;
 
 	public File file;

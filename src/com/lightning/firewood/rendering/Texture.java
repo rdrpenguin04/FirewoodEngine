@@ -22,17 +22,11 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL15.glDeleteBuffers;
 
-import java.awt.Frame;
-import java.awt.Image;
-import java.awt.MediaTracker;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.awt.image.PixelGrabber;
 import java.io.File;
 import java.nio.ByteBuffer;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 import org.lwjgl.BufferUtils;
 
