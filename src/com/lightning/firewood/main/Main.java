@@ -36,6 +36,7 @@ import com.lightning.firewood.loading.Resource;
 import com.lightning.firewood.menu.Menu;
 import com.lightning.firewood.menu.MenuNode;
 import com.lightning.firewood.rendering.Font;
+import com.lightning.firewood.rendering.Std3DShader;
 import com.lightning.firewood.util.Logger;
 import com.lightning.firewood.util.Util;
 
@@ -520,6 +521,9 @@ public class Main {
 					glViewport((int)Math.floor(sideWidth), (int)Math.floor(expandHeight+tbHeight), (int)Math.ceil(width-2*sideWidth), (int)Math.ceil(height-2*(expandHeight+tbHeight)));
 				}
 				glEnable(GL_CULL_FACE);
+				Std3DShader.enable();
+				
+				Std3DShader.disable();
 			}
 			
 			if(GameState.isPaused()) {

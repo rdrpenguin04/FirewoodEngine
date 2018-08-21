@@ -53,9 +53,8 @@ public class Font extends ResourceType {
 			Logger.getLogger().subTask();
 			bmpTexture = new Texture();
 			bmpTexture.forceAlphaOnWhite = true;
-			bmpTexture.load(f);
+			bmpTexture.load(f, false);
 			Logger.getLogger().returned();
-			
 		}
 	}
 

@@ -21,6 +21,7 @@ package com.lightning.firewood.rendering;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL15.glDeleteBuffers;
+import static org.lwjgl.opengl.GL30.*;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -72,7 +73,9 @@ public class Texture extends ResourceType {
 		return id;
 	}
 	
-	public void load(File file) {
+	public void load(File file) { load(file, true); }
+	
+	public void load(File file, boolean smooth) {
 		try {
 			BufferedImage image = ImageIO.read(file);
 			boolean hasAlpha = image.getColorModel().hasAlpha();
@@ -105,10 +108,12 @@ public class Texture extends ResourceType {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, smooth ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
 
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+			glGenerateMipmap(GL_TEXTURE_2D);
+			
 		} catch(Exception e) {
 			e.printStackTrace();
 			System.exit(1);
