@@ -70,7 +70,7 @@ public class Std3DShader {
 	}
 	
 	public static void enable() {
-		
+		glUseProgram(PROGRAM);
 	}
 	
 	public static void disable() {

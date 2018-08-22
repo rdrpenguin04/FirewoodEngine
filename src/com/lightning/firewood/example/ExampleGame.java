@@ -30,6 +30,7 @@ import com.lightning.firewood.menu.Menu;
 import com.lightning.firewood.menu.MenuNode;
 import com.lightning.firewood.menu.MenuTrigger;
 import com.lightning.firewood.rendering.Font;
+import com.lightning.firewood.rendering.Mesh;
 import com.lightning.firewood.rendering.Texture;
 import com.lightning.firewood.util.Invokable;
 import com.lightning.firewood.util.Logger;
@@ -57,6 +58,16 @@ public class ExampleGame extends FirewoodParent {
 				}
 			});
 			Main.queueLoad(borderResource, "border");
+			Resource shipMeshResource = new Resource(new File("assets/examplegame/models/ship.obj"), Mesh.class, new Invokable() {
+				public void invoke(Object... params) {
+					Resource resource = (Resource) params[0];
+					if(resource.error) {
+						Logger.getLogger().printErrln("Error?");
+					}
+					
+				}
+			});
+			Main.queueLoad(shipMeshResource, "shipMesh");
 		} else if(nextState.equals(GameStateEnum.MAIN_MENU)) {
 			Resource fontResource = new Resource(new File("assets/examplegame/gfx/font/font.bmp"), Font.class, new Invokable() {
 				public void invoke(Object... params) {
