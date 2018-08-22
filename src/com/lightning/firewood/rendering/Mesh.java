@@ -9,10 +9,12 @@ import java.util.Scanner;
 import com.lightning.firewood.loading.ResourceType;
 
 import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL20.*;
 
 public class Mesh extends ResourceType {
 	private int vbo;
 	private int ibo;
+	private int size;
 	
 	public Mesh() {
 		vbo = glGenBuffers();
@@ -143,8 +145,10 @@ public class Mesh extends ResourceType {
 					finalVertArray[i] = finalVert.get(i);
 				}
 				
-				glBindBuffer(GL_ARRAY_BUFFER, ibo);
-				glBufferData(GL_ARRAY_BUFFER, finalIndArray, GL_STATIC_DRAW);
+				glBindBuffer(GL_ARRAY_BUFFER, vbo);
+				glBufferData(GL_ARRAY_BUFFER, finalVertArray, GL_STATIC_DRAW);
+				
+				size = finalIndArray.length;
 				
 				s.close();
 			} else {
@@ -157,5 +161,23 @@ public class Mesh extends ResourceType {
 				try { fis.close(); } catch (IOException e) { System.out.println("sadf");}
 			}
 		}
+	}
+	
+	public void render() {
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+		
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, 32, 0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, 32, 12);
+		glVertexAttribPointer(2, 3, GL_FLOAT, false, 32, 20);
+		
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
+		
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
 	}
 }
