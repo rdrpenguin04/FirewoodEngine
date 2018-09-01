@@ -7,7 +7,7 @@ import com.lightning.firewood.util.Logger;
 public class Std3DShader {
 	private static final String VERT_SHADER = "" + 
 			"#version 120\n" + 
-			"#extension GL_ARB_explicit_attrib_location : require\n" + 
+			"#extension GL_ARB_explicit_attrib_location : require\n" + // Because my computer's GPU sucks
 			"\n" + 
 			"layout (location = 0) in vec3 pos;\n" + 
 			"layout (location = 1) in vec2 texCoord;\n" + 

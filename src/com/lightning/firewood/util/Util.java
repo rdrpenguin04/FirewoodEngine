@@ -18,6 +18,8 @@
  */
 package com.lightning.firewood.util;
 
+import com.lightning.firewood.rendering.Texture;
+
 /**
  * @author Ray Redondo
  *
